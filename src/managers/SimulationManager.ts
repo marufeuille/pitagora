@@ -6,6 +6,7 @@ import { Domino } from '../parts/Domino'
 import { Seesaw } from '../parts/Seesaw'
 import { Bell } from '../parts/Bell'
 import type { SoundManager } from './SoundManager'
+import { GRAVITY_Y } from '../constants'
 
 type Mode = 'edit' | 'playing' | 'paused'
 
@@ -21,6 +22,7 @@ type CollisionEvent = {
 export class SimulationManager {
   private _mode: Mode = 'edit'
   private _goalCleared = false
+  private _gravityMult = 1.0
 
   // Timing for star evaluation
   private _playStartTime = 0
@@ -38,6 +40,18 @@ export class SimulationManager {
   ) {}
 
   getMode(): Mode { return this._mode }
+
+  getGravityMultiplier(): number { return this._gravityMult }
+
+  setGravityMultiplier(v: number): void {
+    this._gravityMult = Math.max(0.1, Math.min(5, v))
+    this._scene.matter.world.setGravity(0, GRAVITY_Y * this._gravityMult)
+  }
+
+  resetGravity(): void {
+    this._gravityMult = 1.0
+    this._scene.matter.world.setGravity(0, GRAVITY_Y)
+  }
 
   start(): void {
     if (this._mode === 'playing') return

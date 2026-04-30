@@ -171,6 +171,35 @@ function setupClearOverlay(scene: GameScene): void {
   })
 }
 
+// ── Gravity control (free play only) ─────────────────────────────
+
+function setupGravityControl(scene: GameScene): void {
+  const control = document.getElementById('gravity-control')!
+  const slider  = document.getElementById('gravity-slider') as HTMLInputElement
+  const label   = document.getElementById('gravity-label')!
+
+  function formatMult(v: number): string {
+    return `×${parseFloat(v.toFixed(2))}`
+  }
+
+  slider.addEventListener('input', () => {
+    const v = parseFloat(slider.value)
+    scene.getSimManager().setGravityMultiplier(v)
+    label.textContent = formatMult(v)
+  })
+
+  scene.game.events.on('levelLoaded', () => {
+    control.classList.add('hidden')
+    scene.getSimManager().resetGravity()
+    slider.value = '1'
+    label.textContent = '×1'
+  })
+
+  scene.game.events.on('levelExited', () => {
+    control.classList.remove('hidden')
+  })
+}
+
 // ── BGM toggle ────────────────────────────────────────────────────
 
 function setupBGM(scene: GameScene): void {
@@ -226,4 +255,5 @@ game.events.once('gameSceneReady', (scene: GameScene) => {
   setupLevelIndicator(scene)
   setupClearOverlay(scene)
   setupBGM(scene)
+  setupGravityControl(scene)
 })
