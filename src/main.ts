@@ -272,10 +272,53 @@ function setupGravityControl(scene: GameScene): void {
   })
 }
 
+// ── Title menu (save / stage editor) ─────────────────────────────
+
+function setupTitleMenu(scene: GameScene): void {
+  const btn       = document.getElementById('btn-title-menu')!
+  const popup     = document.getElementById('title-menu-popup')!
+  const itemSave  = document.getElementById('title-item-save')!
+  const itemStage = document.getElementById('title-item-stage')!
+
+  btn.addEventListener('click', e => {
+    e.stopPropagation()
+    const opening = !popup.classList.contains('open')
+    if (opening) {
+      const rect = btn.getBoundingClientRect()
+      popup.style.top  = `${rect.bottom + 4}px`
+      popup.style.left = `${rect.left}px`
+    }
+    popup.classList.toggle('open', opening)
+  })
+
+  popup.addEventListener('click', e => e.stopPropagation())
+  document.addEventListener('click', () => popup.classList.remove('open'))
+
+  itemSave.addEventListener('click', () => {
+    popup.classList.remove('open')
+    document.getElementById('btn-save')?.click()
+  })
+
+  itemStage.addEventListener('click', () => {
+    popup.classList.remove('open')
+    document.getElementById('btn-stage-edit')?.click()
+  })
+
+  scene.game.events.on('levelLoaded', () => {
+    itemSave.classList.add('hidden')
+    itemStage.classList.add('hidden')
+    popup.classList.remove('open')
+  })
+  scene.game.events.on('levelExited', () => {
+    itemSave.classList.remove('hidden')
+    itemStage.classList.remove('hidden')
+  })
+}
+
 // ── UI visibility per mode ────────────────────────────────────────
 
 function setupUIVisibility(scene: GameScene): void {
-  const freePlayOnly = ['btn-clear', 'btn-preset', 'btn-save', 'gravity-control', 'btn-stage-edit', 'btn-levels']
+  const freePlayOnly = ['btn-clear', 'btn-preset', 'gravity-control', 'btn-levels']
   const levelOnly    = ['btn-exit-level']
 
   function applyMode(isLevel: boolean): void {
@@ -535,4 +578,5 @@ game.events.once('gameSceneReady', (scene: GameScene) => {
   setupGravityControl(scene)
   setupUIVisibility(scene)
   setupStageEditor(scene, customLevels)
+  setupTitleMenu(scene)
 })
