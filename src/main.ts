@@ -97,33 +97,49 @@ function setupLevelModal(scene: GameScene, customLevels: CustomLevelManager): vo
     for (const lvl of customs) {
       const card = document.createElement('div')
       card.className = 'level-card custom'
-      const diffHtml = Array.from({ length: lvl.difficulty }, () => '★').join('')
-        + Array.from({ length: 5 - lvl.difficulty }, () => '☆').join('')
-      card.innerHTML = `
-        <div class="lc-title">${lvl.title}</div>
-        <div class="lc-diff">${diffHtml}</div>
-        <div class="lc-desc">${lvl.description}</div>
-        <div class="lc-actions">
-          <button class="lc-btn-export">↑ エクスポート</button>
-          <button class="lc-btn-delete">🗑 けす</button>
-        </div>
-      `
+
+      const titleEl = document.createElement('div')
+      titleEl.className = 'lc-title'
+      titleEl.textContent = lvl.title
+
+      const diffEl = document.createElement('div')
+      diffEl.className = 'lc-diff'
+      diffEl.textContent = '★'.repeat(lvl.difficulty) + '☆'.repeat(5 - lvl.difficulty)
+
+      const descEl = document.createElement('div')
+      descEl.className = 'lc-desc'
+      descEl.textContent = lvl.description
+
+      const actionsEl = document.createElement('div')
+      actionsEl.className = 'lc-actions'
+
+      const exportBtn = document.createElement('button')
+      exportBtn.className = 'lc-btn-export'
+      exportBtn.textContent = '↑ エクスポート'
+
+      const deleteBtn = document.createElement('button')
+      deleteBtn.className = 'lc-btn-delete'
+      deleteBtn.textContent = '🗑 けす'
+
+      actionsEl.appendChild(exportBtn)
+      actionsEl.appendChild(deleteBtn)
+      card.append(titleEl, diffEl, descEl, actionsEl)
+
       card.addEventListener('click', e => {
         if ((e.target as HTMLElement).closest('button')) return
         overlay.classList.remove('visible')
         scene.loadLevel(lvl)
       })
-      card.querySelector('.lc-btn-export')!.addEventListener('click', e => {
+      exportBtn.addEventListener('click', e => {
         e.stopPropagation()
         customLevels.exportJSON(lvl)
       })
-      card.querySelector('.lc-btn-delete')!.addEventListener('click', e => {
+      deleteBtn.addEventListener('click', e => {
         e.stopPropagation()
-        const btn = e.currentTarget as HTMLButtonElement
-        if (btn.dataset.confirm !== '1') {
-          btn.textContent = '本当に？'
-          btn.dataset.confirm = '1'
-          setTimeout(() => { btn.textContent = '🗑 けす'; btn.dataset.confirm = '' }, 2500)
+        if (deleteBtn.dataset.confirm !== '1') {
+          deleteBtn.textContent = '本当に？'
+          deleteBtn.dataset.confirm = '1'
+          setTimeout(() => { deleteBtn.textContent = '🗑 けす'; deleteBtn.dataset.confirm = '' }, 2500)
           return
         }
         customLevels.delete(lvl.id)

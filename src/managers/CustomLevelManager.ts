@@ -1,6 +1,17 @@
 import type { LevelData } from '../types/LevelTypes'
+import type { PartData } from '../types/PartTypes'
 
 const KEY = 'pitagora_custom_levels'
+const VALID_PART_TYPES = new Set(['ball', 'ramp', 'platform', 'domino', 'seesaw', 'goal', 'spring', 'bell'])
+
+function isValidPart(p: unknown): p is PartData {
+  if (!p || typeof p !== 'object') return false
+  const part = p as Record<string, unknown>
+  return VALID_PART_TYPES.has(part.type as string)
+    && typeof part.x === 'number'
+    && typeof part.y === 'number'
+    && typeof part.angle === 'number'
+}
 
 export class CustomLevelManager {
   list(): LevelData[] {
@@ -38,6 +49,7 @@ export class CustomLevelManager {
     try {
       const data = JSON.parse(json) as Partial<LevelData>
       if (typeof data.title !== 'string' || !Array.isArray(data.parts)) return null
+      if (!data.parts.every(isValidPart)) return null
       return {
         id: data.id ?? `custom_${Date.now()}`,
         title: data.title,
