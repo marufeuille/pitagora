@@ -200,6 +200,20 @@ function setupGravityControl(scene: GameScene): void {
   })
 }
 
+// ── SE toggle ─────────────────────────────────────────────────────
+
+function setupSE(scene: GameScene): void {
+  const btn = document.getElementById('btn-se')!
+  let seOn = true
+  btn.classList.add('on')
+
+  btn.addEventListener('click', () => {
+    seOn = !seOn
+    btn.classList.toggle('on', seOn)
+    scene.getSoundManager().setSEMuted(!seOn)
+  })
+}
+
 // ── BGM toggle ────────────────────────────────────────────────────
 
 function setupBGM(scene: GameScene): void {
@@ -255,5 +269,6 @@ game.events.once('gameSceneReady', (scene: GameScene) => {
   setupLevelIndicator(scene)
   setupClearOverlay(scene)
   setupBGM(scene)
+  setupSE(scene)
   setupGravityControl(scene)
 })
