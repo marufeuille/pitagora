@@ -402,6 +402,63 @@
       }
       #clear-card button:hover { filter: brightness(0.93); }
 
+      /* ── Delete confirm overlay ── */
+      #delete-confirm-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(180,160,130,0.5);
+        z-index: 300;
+        justify-content: center;
+        align-items: center;
+      }
+      #delete-confirm-overlay.visible { display: flex; }
+      #delete-confirm-card {
+        background: #faf7f0;
+        border: 2.5px solid #c8b898;
+        border-radius: 12px;
+        padding: 28px 36px;
+        text-align: center;
+        box-shadow: 4px 4px 0 #d0c4b0;
+        animation: pop-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        max-width: 280px;
+      }
+      #delete-confirm-card .dc-icon { font-size: 40px; margin-bottom: 8px; }
+      #delete-confirm-card .dc-title {
+        font-family: 'Caveat', cursive;
+        font-size: 26px;
+        font-weight: 700;
+        color: #3a2e20;
+        margin-bottom: 8px;
+      }
+      #delete-confirm-card .dc-body {
+        font-size: 13px;
+        color: #7a6a58;
+        margin-bottom: 20px;
+        line-height: 1.6;
+      }
+      #delete-confirm-card .dc-actions { display: flex; gap: 10px; justify-content: center; }
+      #delete-confirm-card .dc-actions button {
+        font-family: 'Caveat', cursive;
+        font-size: 17px;
+        font-weight: 700;
+        padding: 8px 22px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      #btn-delete-cancel {
+        background: #ede8e0;
+        color: #5a4a38;
+        border: 2px solid #c8b898;
+      }
+      #btn-delete-cancel:hover { filter: brightness(0.93); }
+      #btn-delete-confirm {
+        background: #f8d8d4;
+        color: #7a2a20;
+        border: 2px solid #d49090;
+      }
+      #btn-delete-confirm:hover { filter: brightness(0.93); }
+
       /* ── Constraint badge on tool buttons ── */
       .tool-btn { position: relative; }
       .constraint-badge {
@@ -910,6 +967,19 @@
         <div class="stage-modal-actions">
           <button class="btn-secondary" id="btn-cancel-save-stage">キャンセル</button>
           <button class="btn-primary" id="btn-do-save-stage">💾 ほぞん</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete confirm overlay -->
+    <div id="delete-confirm-overlay">
+      <div id="delete-confirm-card">
+        <div class="dc-icon">🗑</div>
+        <div class="dc-title">ぜんぶけす？</div>
+        <div class="dc-body">おいたパーツをすべてけします。<br>もとにもどせません。</div>
+        <div class="dc-actions">
+          <button id="btn-delete-cancel">キャンセル</button>
+          <button id="btn-delete-confirm">けす</button>
         </div>
       </div>
     </div>
