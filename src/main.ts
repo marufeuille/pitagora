@@ -275,10 +275,11 @@ function setupGravityControl(scene: GameScene): void {
 // ── Title menu (save / stage editor) ─────────────────────────────
 
 function setupTitleMenu(scene: GameScene): void {
-  const btn       = document.getElementById('btn-title-menu')!
-  const popup     = document.getElementById('title-menu-popup')!
-  const itemSave  = document.getElementById('title-item-save')!
-  const itemStage = document.getElementById('title-item-stage')!
+  const btn         = document.getElementById('btn-title-menu')!
+  const popup       = document.getElementById('title-menu-popup')!
+  const itemPreset  = document.getElementById('title-item-preset')!
+  const itemSave    = document.getElementById('title-item-save')!
+  const itemStage   = document.getElementById('title-item-stage')!
 
   btn.addEventListener('click', e => {
     e.stopPropagation()
@@ -294,6 +295,11 @@ function setupTitleMenu(scene: GameScene): void {
   popup.addEventListener('click', e => e.stopPropagation())
   document.addEventListener('click', () => popup.classList.remove('open'))
 
+  itemPreset.addEventListener('click', () => {
+    popup.classList.remove('open')
+    document.getElementById('btn-preset')?.click()
+  })
+
   itemSave.addEventListener('click', () => {
     popup.classList.remove('open')
     document.getElementById('btn-save')?.click()
@@ -304,21 +310,20 @@ function setupTitleMenu(scene: GameScene): void {
     document.getElementById('btn-stage-edit')?.click()
   })
 
+  const freePlayItems = [itemPreset, itemSave, itemStage]
   scene.game.events.on('levelLoaded', () => {
-    itemSave.classList.add('hidden')
-    itemStage.classList.add('hidden')
+    freePlayItems.forEach(el => el.classList.add('hidden'))
     popup.classList.remove('open')
   })
   scene.game.events.on('levelExited', () => {
-    itemSave.classList.remove('hidden')
-    itemStage.classList.remove('hidden')
+    freePlayItems.forEach(el => el.classList.remove('hidden'))
   })
 }
 
 // ── UI visibility per mode ────────────────────────────────────────
 
 function setupUIVisibility(scene: GameScene): void {
-  const freePlayOnly = ['btn-clear', 'btn-preset', 'gravity-control', 'btn-levels']
+  const freePlayOnly = ['btn-clear', 'gravity-control', 'btn-levels']
   const levelOnly    = ['btn-exit-level']
 
   function applyMode(isLevel: boolean): void {
