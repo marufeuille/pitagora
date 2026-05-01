@@ -9,15 +9,45 @@ export class ControlBar {
   private _badge    = document.getElementById('mode-badge') as HTMLElement
 
   connectToScene(scene: GameScene): void {
-    this._btnPlay.addEventListener('click', () => scene.getSimManager().start())
+    this._btnPlay.addEventListener('click', () => {
+      if (scene.getEditManager().getGoals().length === 0) {
+        this._showToast('ゴールを置いてください！')
+        return
+      }
+      scene.getSimManager().start()
+    })
+
     this._btnPause.addEventListener('click', () => scene.getSimManager().pause())
     this._btnReset.addEventListener('click', () => scene.getSimManager().reset())
+
+    // 2-click confirmation instead of confirm() dialog
     this._btnClear.addEventListener('click', () => {
-      if (confirm('全パーツを削除しますか？')) scene.getSimManager().fullReset()
+      if (this._btnClear.dataset.confirm === '1') {
+        scene.getSimManager().fullReset()
+        this._btnClear.textContent = '🗑'
+        this._btnClear.dataset.confirm = ''
+        return
+      }
+      this._btnClear.textContent = '？'
+      this._btnClear.dataset.confirm = '1'
+      setTimeout(() => {
+        if (this._btnClear.dataset.confirm === '1') {
+          this._btnClear.textContent = '🗑'
+          this._btnClear.dataset.confirm = ''
+        }
+      }, 2500)
     })
 
     scene.game.events.on('modeChange', (mode: string) => this._updateMode(mode))
     this._updateMode('edit')
+  }
+
+  private _showToast(msg: string): void {
+    const el = document.getElementById('toast')
+    if (!el) return
+    el.textContent = msg
+    el.classList.add('visible')
+    setTimeout(() => el.classList.remove('visible'), 2200)
   }
 
   private _updateMode(mode: string): void {
