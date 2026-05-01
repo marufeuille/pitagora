@@ -174,29 +174,41 @@ function setupClearOverlay(scene: GameScene): void {
 // ── Gravity control (free play only) ─────────────────────────────
 
 function setupGravityControl(scene: GameScene): void {
-  const control = document.getElementById('gravity-control')!
-  const slider  = document.getElementById('gravity-slider') as HTMLInputElement
-  const label   = document.getElementById('gravity-label')!
-
-  function formatMult(v: number): string {
-    return `×${parseFloat(v.toFixed(2))}`
-  }
+  const slider = document.getElementById('gravity-slider') as HTMLInputElement
+  const label  = document.getElementById('gravity-label')!
 
   slider.addEventListener('input', () => {
     const v = parseFloat(slider.value)
     scene.getSimManager().setGravityMultiplier(v)
-    label.textContent = formatMult(v)
+    label.textContent = `×${parseFloat(v.toFixed(2))}`
   })
 
   scene.game.events.on('levelLoaded', () => {
-    control.classList.add('hidden')
     scene.getSimManager().resetGravity()
     slider.value = '1'
     label.textContent = '×1'
   })
+}
 
-  scene.game.events.on('levelExited', () => {
-    control.classList.remove('hidden')
+// ── UI visibility per mode ────────────────────────────────────────
+
+function setupUIVisibility(scene: GameScene): void {
+  const freePlayOnly = ['btn-clear', 'btn-preset', 'btn-save', 'gravity-control']
+  const levelOnly    = ['btn-exit-level']
+
+  function applyMode(isLevel: boolean): void {
+    freePlayOnly.forEach(id => document.getElementById(id)?.classList.toggle('hidden', isLevel))
+    levelOnly.forEach(id => document.getElementById(id)?.classList.toggle('hidden', !isLevel))
+  }
+
+  applyMode(false)
+
+  scene.game.events.on('levelLoaded', () => applyMode(true))
+  scene.game.events.on('levelExited', () => applyMode(false))
+
+  document.getElementById('btn-exit-level')?.addEventListener('click', () => {
+    if (scene.getSimManager().getMode() !== 'edit') scene.getSimManager().reset()
+    scene.exitLevelMode()
   })
 }
 
@@ -258,10 +270,7 @@ game.events.once('gameSceneReady', (scene: GameScene) => {
   setupContextMenu(scene)
 
   document.getElementById('btn-preset')?.addEventListener('click', () => {
-    if (scene.getSimManager().getMode() !== 'edit') {
-      scene.getSimManager().reset()
-    }
-    scene.exitLevelMode()
+    if (scene.getSimManager().getMode() !== 'edit') scene.getSimManager().reset()
     scene.loadPreset()
   })
 
@@ -271,4 +280,5 @@ game.events.once('gameSceneReady', (scene: GameScene) => {
   setupBGM(scene)
   setupSE(scene)
   setupGravityControl(scene)
+  setupUIVisibility(scene)
 })
