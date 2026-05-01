@@ -183,12 +183,11 @@ export class GameScene extends Phaser.Scene {
   private _drawEditorOverlay(): void {
     this._editorOverlay.clear()
     for (const part of this._edit.getAllParts()) {
-      if (!part.isFixed) continue
       const { x, y } = part.body.position
-      this._editorOverlay.fillStyle(0x2255cc, 0.35)
-      this._editorOverlay.fillCircle(x, y, 9)
-      this._editorOverlay.lineStyle(2, 0x88aaff, 0.9)
-      this._editorOverlay.strokeCircle(x, y, 9)
+      this._editorOverlay.fillStyle(0x2255cc, 0.25)
+      this._editorOverlay.fillCircle(x, y, 7)
+      this._editorOverlay.lineStyle(1.5, 0x88aaff, 0.7)
+      this._editorOverlay.strokeCircle(x, y, 7)
     }
   }
 

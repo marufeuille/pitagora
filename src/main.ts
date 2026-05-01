@@ -323,8 +323,6 @@ function setupStageEditor(scene: GameScene, customLevels: CustomLevelManager): v
   const btnTestPlay    = document.getElementById('btn-test-play')!
   const btnSaveStage   = document.getElementById('btn-save-stage')!
   const btnExitTest    = document.getElementById('btn-exit-test')!
-  const btnFixPart     = document.getElementById('btn-fix-part') as HTMLButtonElement
-  const editorDivider  = document.getElementById('editor-toolbar-divider')!
   const editorIndicator = document.getElementById('editor-indicator')!
   const stageSaveModal = document.getElementById('stage-save-modal-overlay')!
 
@@ -340,8 +338,6 @@ function setupStageEditor(scene: GameScene, customLevels: CustomLevelManager): v
     btnStageEdit.classList.add('active')
     btnTestPlay.classList.remove('hidden')
     btnSaveStage.classList.remove('hidden')
-    btnFixPart.style.display = ''
-    editorDivider.style.display = ''
     editorIndicator.classList.add('visible')
   }
 
@@ -351,8 +347,6 @@ function setupStageEditor(scene: GameScene, customLevels: CustomLevelManager): v
     btnStageEdit.classList.remove('active')
     btnTestPlay.classList.add('hidden')
     btnSaveStage.classList.add('hidden')
-    btnFixPart.style.display = 'none'
-    editorDivider.style.display = 'none'
     editorIndicator.classList.remove('visible')
   }
 
@@ -369,29 +363,15 @@ function setupStageEditor(scene: GameScene, customLevels: CustomLevelManager): v
     if (editorMode && testPlaySnapshot.length === 0) exitEditorMode()
   })
 
-  // ── Fix part toggle ──
-
-  scene.game.events.on('selectionChange', () => {
-    if (!editorMode) return
-    const part = scene.getEditManager().getSelectedPart()
-    btnFixPart.classList.toggle('active', part?.isFixed ?? false)
-    btnFixPart.disabled = !part
-  })
-
-  btnFixPart.addEventListener('click', () => {
-    const isNowFixed = scene.toggleFixedOnSelected()
-    if (isNowFixed !== null) btnFixPart.classList.toggle('active', isNowFixed)
-  })
-
   // ── Test play ──
 
   btnTestPlay.addEventListener('click', () => {
     if (scene.getSimManager().getMode() !== 'edit') scene.getSimManager().reset()
 
     testPlaySnapshot = scene.captureEditorState()
-    const fixedParts = testPlaySnapshot.filter(p => p.isFixed)
+    // All editor parts become fixed obstacles in the level
+    const fixedParts = testPlaySnapshot.map(p => ({ ...p, isFixed: true }))
 
-    // Build constraints from the save form's current values (or empty = unlimited)
     testPlayConstraints = readConstraintsFromForm()
 
     const testLevel: LevelData = {
@@ -452,7 +432,8 @@ function setupStageEditor(scene: GameScene, customLevels: CustomLevelManager): v
     const parParts = parseInt((document.getElementById('stage-par-input') as HTMLInputElement).value) || 5
     const constraints = readConstraintsFromForm()
     const allParts = scene.captureEditorState()
-    const fixedParts = allParts.filter(p => p.isFixed)
+    // All editor parts become fixed obstacles in the saved level
+    const fixedParts = allParts.map(p => ({ ...p, isFixed: true }))
 
     const level: LevelData = {
       id: `custom_${Date.now()}`,

@@ -145,8 +145,6 @@
         box-shadow: inset 0 1px 4px rgba(0,0,0,0.12);
       }
       .tool-btn:disabled { opacity: 0.4; cursor: default; }
-      #btn-fix-part { background: #eee0f8; border-color: #c098d8; color: #5a2a7a; }
-      #btn-fix-part.active { background: #c098d8; border-color: #8050a8; color: #fff; }
 
       /* ── Game Canvas Container ── */
       #game-canvas {
@@ -697,12 +695,6 @@
       <button class="tool-btn" id="btn-redo" title="やり直す (Ctrl+Shift+Z)" disabled>
         <span class="icon">↪</span>
         <span data-en="Redo">すすむ</span>
-      </button>
-      <!-- Stage editor only -->
-      <div class="divider" id="editor-toolbar-divider" style="display:none;"></div>
-      <button class="tool-btn" id="btn-fix-part" title="選択パーツを固定/解除" style="display:none;">
-        <span class="icon">🔒</span>
-        <span data-en="Fix">こてい</span>
       </button>
     </div>
 
