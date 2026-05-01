@@ -207,6 +207,9 @@ export class EditManager {
 
   // ── Undo / Redo ─────────────────────────────────────────────────
 
+  canUndo(): boolean { return this._undo.length > 0 }
+  canRedo(): boolean { return this._redo.length > 0 }
+
   undo(): void {
     const entry = this._undo.pop()
     if (!entry) return
@@ -249,6 +252,7 @@ export class EditManager {
         break
       }
     }
+    this._scene.game.events.emit('undoRedoUpdate')
   }
 
   redo(): void {
@@ -293,6 +297,7 @@ export class EditManager {
         break
       }
     }
+    this._scene.game.events.emit('undoRedoUpdate')
   }
 
   // ── Bulk ops ────────────────────────────────────────────────────
