@@ -387,13 +387,14 @@ export class GameScene extends Phaser.Scene {
     this.input.on('pointerup', (ptr: Phaser.Input.Pointer) => {
       if (this._pendingPlace) {
         const moved = Phaser.Math.Distance.Between(ptr.x, ptr.y, this._pendingPlaceDownX, this._pendingPlaceDownY)
-        if (moved < 20) {
-          const wp = this.cameras.main.getWorldPoint(ptr.x, ptr.y)
+        if (moved < 50) {
+          const wp = this.cameras.main.getWorldPoint(this._pendingPlaceDownX, this._pendingPlaceDownY)
           this._edit.placePart(wp.x, wp.y)
           this.game.events.emit('partsUpdate')
           this._updateConstraintUI()
         }
         this._pendingPlace = false
+        this._ghost.clear()
         return
       }
       if (this._panning) {
