@@ -52,8 +52,9 @@ export class ControlBar {
 
   private _updateMode(mode: string): void {
     this._badge.textContent = getModeLabel(mode)
-    this._badge.className = mode === 'edit' ? '' : mode
-    this._badge.classList.add('mode-badge-base')
+    this._badge.className = mode
+    // Show badge only during simulation, not during editing
+    this._badge.style.display = mode === 'edit' ? 'none' : ''
 
     this._btnPlay.style.display  = mode === 'playing' ? 'none' : 'flex'
     this._btnPause.style.display = mode === 'playing' ? 'flex' : 'none'

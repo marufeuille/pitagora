@@ -75,10 +75,18 @@
       #btn-save-stage  { background: #f4e8d0; color: #6a4010; border-color: #c0a060; }
       #btn-exit-test   { background: #d4e8f8; color: #2a4a78; border-color: #80a8d8; }
 
+      .cb-sep {
+        width: 1.5px;
+        height: 22px;
+        background: #d0c4b0;
+        flex-shrink: 0;
+        margin: 0 2px;
+      }
+      .cb-spacer { margin-left: auto; }
+
       #control-bar button:hover { filter: brightness(0.93); }
       #control-bar button:active { transform: scale(0.95); }
       #mode-badge {
-        margin-left: auto;
         padding: 4px 12px;
         border-radius: 14px;
         font-family: inherit;
@@ -617,18 +625,28 @@
     <!-- Control Bar -->
     <div id="control-bar">
       <span class="title">✏ ピタゴラ</span>
+
+      <!-- Group 1: 再生コントロール -->
       <button id="btn-play"       title="さいせい（ゴールが必要）">▶</button>
       <button id="btn-pause"      title="とめる">⏸</button>
       <button id="btn-reset"      title="はじめから">↺</button>
+
+      <span class="cb-sep"></span>
+
+      <!-- Group 2: ステージ管理・エディター -->
       <button id="btn-clear"      title="ぜんぶけす">🗑</button>
       <button id="btn-levels"     title="れべるをえらぶ">🎯</button>
+      <button id="btn-preset"     title="プリセット">★</button>
+      <button id="btn-save"       title="ほぞん・よみこみ">💾</button>
       <button id="btn-stage-edit" title="ステージをつくる">🛠</button>
       <button id="btn-test-play"  title="テストプレイ" class="hidden">▶</button>
       <button id="btn-save-stage" title="ステージをほぞん" class="hidden">💾</button>
       <button id="btn-exit-level" title="フリーあそびにもどる" class="hidden">←</button>
       <button id="btn-exit-test"  title="エディターにもどる" class="hidden">←</button>
-      <button id="btn-preset"     title="プリセット">★</button>
-      <button id="btn-save"       title="ほぞん・よみこみ">💾</button>
+
+      <span class="cb-sep"></span>
+
+      <!-- Group 3: オーディオ・設定 -->
       <button id="btn-bgm"        title="BGM切り替え">♪</button>
       <button id="btn-se"         title="効果音切り替え">🔊</button>
       <span id="gravity-control" title="重力の強さを変更（フリープレイのみ）">
@@ -636,9 +654,12 @@
         <input type="range" id="gravity-slider" min="0.25" max="4" step="0.25" value="1">
         <span id="gravity-label">×1</span>
       </span>
+
+      <!-- 右寄せエリア -->
+      <span class="cb-spacer"></span>
       <span id="level-indicator"></span>
       <span id="editor-indicator">🛠 エディター</span>
-      <span id="mode-badge">EDIT</span>
+      <span id="mode-badge"></span>
     </div>
 
     <!-- Toolbar -->
