@@ -2,6 +2,8 @@
 export class SoundManager {
   private _ctx: AudioContext | null = null
 
+  private _seMuted = false
+
   // BGM state
   private _bgmRunning = false
   private _bgmMode: 'edit' | 'play' = 'edit'
@@ -21,9 +23,12 @@ export class SoundManager {
 
   // ── Collision sounds ──────────────────────────────────────────
 
+  setSEMuted(muted: boolean): void { this._seMuted = muted }
+  isSEMuted(): boolean { return this._seMuted }
+
   /** Ball hitting floor, wall or static part */
   playBallHit(speed: number): void {
-    if (speed < 1.5) return
+    if (this._seMuted || speed < 1.5) return
     const ctx = this._getCtx()
     const now = ctx.currentTime
     if (now - this._lastHitTime < 0.1) return
@@ -45,6 +50,7 @@ export class SoundManager {
 
   /** Domino starting to fall – low wooden thud */
   playDominoTip(): void {
+    if (this._seMuted) return
     const ctx = this._getCtx()
     const now = ctx.currentTime
     if (now - this._lastDominoTime < 0.07) return
@@ -70,6 +76,7 @@ export class SoundManager {
 
   /** Seesaw starting to tip – wooden creak */
   playSeesawCreak(): void {
+    if (this._seMuted) return
     const ctx = this._getCtx()
     const now = ctx.currentTime
     if (now - this._lastSeesawTime < 0.32) return
@@ -90,6 +97,7 @@ export class SoundManager {
 
   /** Bell ringing – bright overtone chord */
   playBell(): void {
+    if (this._seMuted) return
     const ctx = this._getCtx()
     const freqs = [1397, 1760, 2093]
     freqs.forEach((f, i) => {
@@ -108,6 +116,7 @@ export class SoundManager {
 
   /** Spring boing when bouncing a ball */
   playSpringBoing(): void {
+    if (this._seMuted) return
     const ctx = this._getCtx()
     const now = ctx.currentTime
     const osc = ctx.createOscillator()
@@ -125,6 +134,7 @@ export class SoundManager {
 
   /** Short click/tick sound */
   playTick(volume = 0.25): void {
+    if (this._seMuted) return
     const ctx = this._getCtx()
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
@@ -139,6 +149,7 @@ export class SoundManager {
 
   /** Clear/goal jingle: ascending arpeggio */
   playClear(): void {
+    if (this._seMuted) return
     const ctx = this._getCtx()
     const notes = [523, 659, 784, 1047, 1319]
     notes.forEach((freq, i) => {
@@ -158,6 +169,7 @@ export class SoundManager {
 
   /** Ball rolling soft hum (short burst) */
   playRoll(): void {
+    if (this._seMuted) return
     const ctx = this._getCtx()
     const bufLen = ctx.sampleRate * 0.06
     const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate)
