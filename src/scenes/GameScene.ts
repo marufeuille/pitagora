@@ -60,6 +60,11 @@ export class GameScene extends Phaser.Scene {
   // Pinch zoom
   private _pinchDist = 0
 
+  // Pending part placement (defer to pointerup so tap-to-place works on touch)
+  private _pendingPlace = false
+  private _pendingPlaceDownX = 0
+  private _pendingPlaceDownY = 0
+
   constructor() { super({ key: 'GameScene' }) }
 
   create(): void {
@@ -380,6 +385,17 @@ export class GameScene extends Phaser.Scene {
     })
 
     this.input.on('pointerup', (ptr: Phaser.Input.Pointer) => {
+      if (this._pendingPlace) {
+        const moved = Phaser.Math.Distance.Between(ptr.x, ptr.y, this._pendingPlaceDownX, this._pendingPlaceDownY)
+        if (moved < 20) {
+          const wp = this.cameras.main.getWorldPoint(ptr.x, ptr.y)
+          this._edit.placePart(wp.x, wp.y)
+          this.game.events.emit('partsUpdate')
+          this._updateConstraintUI()
+        }
+        this._pendingPlace = false
+        return
+      }
       if (this._panning) {
         this._panning = false
         if (this._panFromEmpty) {
@@ -411,6 +427,7 @@ export class GameScene extends Phaser.Scene {
         this._rotating = false
         this._rotTarget = null
       }
+      this._pendingPlace = false
       this._panning = false
       this._panFromEmpty = false
       this._dragging = false
@@ -455,9 +472,9 @@ export class GameScene extends Phaser.Scene {
       if (this._sim.getMode() !== 'edit') return
       if (wp.y >= this._worldH - WALL_THICKNESS) return
       if (!this._edit.canPlace(tool as PartType)) return
-      this._edit.placePart(wp.x, wp.y)
-      this.game.events.emit('partsUpdate')
-      this._updateConstraintUI()
+      this._pendingPlace = true
+      this._pendingPlaceDownX = ptr.x
+      this._pendingPlaceDownY = ptr.y
       return
     }
 
