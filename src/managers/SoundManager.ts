@@ -217,11 +217,10 @@ export class SoundManager {
     }
   }
 
-  /** Switch BGM mode without interrupting */
+  /** Switch BGM mode without interrupting. No-op if BGM is not user-initiated. */
   switchBGM(mode: 'edit' | 'play'): void {
-    if (this._bgmMode === mode && this._bgmRunning) return
+    if (!this._bgmRunning) return
     this._bgmMode = mode
-    if (!this._bgmRunning) this.startBGM(mode)
   }
 
   private _scheduleBGM(): void {
