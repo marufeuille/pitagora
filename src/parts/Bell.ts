@@ -9,6 +9,7 @@ const BELL_H = 42
 export class Bell extends BasePart {
   readonly type: PartType = 'bell'
   private _rung = false
+  private _ringing = false
 
   create(scene: PhysicsScene, x: number, y: number, _options: PartOptions): void {
     this._scene = scene
@@ -31,6 +32,7 @@ export class Bell extends BasePart {
   ring(): void {
     if (this._rung) return
     this._rung = true
+    this._ringing = true
     const base = this._body.angle
     // 減衰振り子：振れ幅を徐々に小さくする
     const swings = [
@@ -42,7 +44,10 @@ export class Bell extends BasePart {
       { angle: base,        dur: 90  },
     ]
     const next = (i: number) => {
-      if (i >= swings.length) return
+      if (i >= swings.length) {
+        this._ringing = false
+        return
+      }
       this._scene.tweens.add({
         targets: this._graphics,
         rotation: swings[i].angle,
@@ -54,9 +59,20 @@ export class Bell extends BasePart {
     next(0)
   }
 
+  override syncTransform(): void {
+    // アニメーション中は rotation を上書きしない
+    if (this._ringing) {
+      this._graphics.x = this._body.position.x
+      this._graphics.y = this._body.position.y
+    } else {
+      super.syncTransform()
+    }
+  }
+
   override onReset(): void {
     super.onReset()
     this._rung = false
+    this._ringing = false
   }
 
   get hasRung(): boolean { return this._rung }
