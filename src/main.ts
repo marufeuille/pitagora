@@ -3,8 +3,11 @@ import { Toolbar } from './ui/Toolbar'
 import { ControlBar } from './ui/ControlBar'
 import { SaveMenu } from './ui/SaveMenu'
 import { applyLocale } from './ui/locale'
+import { CustomLevelManager } from './managers/CustomLevelManager'
 import type { GameScene } from './scenes/GameScene'
 import type { LevelData } from './types/LevelTypes'
+import type { PartConstraints } from './types/LevelTypes'
+import type { PartType } from './types/PartTypes'
 
 applyLocale()
 
@@ -51,9 +54,11 @@ function setupContextMenu(scene: GameScene): void {
 
 // ── Level select modal ────────────────────────────────────────────
 
-function setupLevelModal(scene: GameScene): void {
+function setupLevelModal(scene: GameScene, customLevels: CustomLevelManager): void {
   const overlay = document.getElementById('level-modal-overlay')!
   const grid = document.getElementById('level-grid')!
+  const customGrid = document.getElementById('custom-level-grid')!
+  const customSection = document.getElementById('custom-levels-section')!
   const levels = scene.getLevelManager().getLevels()
 
   function renderGrid(): void {
@@ -84,6 +89,48 @@ function setupLevelModal(scene: GameScene): void {
       })
       grid.appendChild(card)
     }
+
+    // Custom levels
+    const customs = customLevels.list()
+    customSection.style.display = customs.length > 0 ? '' : 'none'
+    customGrid.innerHTML = ''
+    for (const lvl of customs) {
+      const card = document.createElement('div')
+      card.className = 'level-card custom'
+      const diffHtml = Array.from({ length: lvl.difficulty }, () => '★').join('')
+        + Array.from({ length: 5 - lvl.difficulty }, () => '☆').join('')
+      card.innerHTML = `
+        <div class="lc-title">${lvl.title}</div>
+        <div class="lc-diff">${diffHtml}</div>
+        <div class="lc-desc">${lvl.description}</div>
+        <div class="lc-actions">
+          <button class="lc-btn-export">↑ エクスポート</button>
+          <button class="lc-btn-delete">🗑 けす</button>
+        </div>
+      `
+      card.addEventListener('click', e => {
+        if ((e.target as HTMLElement).closest('button')) return
+        overlay.classList.remove('visible')
+        scene.loadLevel(lvl)
+      })
+      card.querySelector('.lc-btn-export')!.addEventListener('click', e => {
+        e.stopPropagation()
+        customLevels.exportJSON(lvl)
+      })
+      card.querySelector('.lc-btn-delete')!.addEventListener('click', e => {
+        e.stopPropagation()
+        const btn = e.currentTarget as HTMLButtonElement
+        if (btn.dataset.confirm !== '1') {
+          btn.textContent = '本当に？'
+          btn.dataset.confirm = '1'
+          setTimeout(() => { btn.textContent = '🗑 けす'; btn.dataset.confirm = '' }, 2500)
+          return
+        }
+        customLevels.delete(lvl.id)
+        renderGrid()
+      })
+      customGrid.appendChild(card)
+    }
   }
 
   document.getElementById('btn-levels')?.addEventListener('click', () => {
@@ -99,8 +146,24 @@ function setupLevelModal(scene: GameScene): void {
     if (e.target === overlay) overlay.classList.remove('visible')
   })
 
-  // Re-render when progress updates
+  // Import stage JSON
+  document.getElementById('stage-import-file')?.addEventListener('change', e => {
+    const file = (e.target as HTMLInputElement).files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = ev => {
+      const lvl = customLevels.importJSON(ev.target?.result as string)
+      if (!lvl) { alert('JSONの読み込みに失敗しました'); return }
+      lvl.id = `custom_${Date.now()}`
+      customLevels.save(lvl)
+      renderGrid()
+    }
+    reader.readAsText(file)
+    ;(e.target as HTMLInputElement).value = ''
+  })
+
   scene.game.events.on('progressUpdate', () => renderGrid())
+  scene.game.events.on('customLevelsUpdate', () => renderGrid())
 }
 
 // ── Level indicator in control bar ───────────────────────────────
@@ -110,7 +173,7 @@ function setupLevelIndicator(scene: GameScene): void {
 
   scene.game.events.on('levelLoaded', (level: LevelData) => {
     const idx = scene.getLevelManager().getCurrentIndex()
-    indicator.textContent = `Lv.${idx + 1} ${level.title}`
+    indicator.textContent = idx >= 0 ? `Lv.${idx + 1} ${level.title}` : `🛠 ${level.title}`
     indicator.classList.add('visible')
   })
 
@@ -196,7 +259,7 @@ function setupGravityControl(scene: GameScene): void {
 // ── UI visibility per mode ────────────────────────────────────────
 
 function setupUIVisibility(scene: GameScene): void {
-  const freePlayOnly = ['btn-clear', 'btn-preset', 'btn-save', 'gravity-control']
+  const freePlayOnly = ['btn-clear', 'btn-preset', 'btn-save', 'gravity-control', 'btn-stage-edit', 'btn-levels']
   const levelOnly    = ['btn-exit-level']
 
   function applyMode(isLevel: boolean): void {
@@ -247,11 +310,183 @@ function setupBGM(scene: GameScene): void {
     }
   })
 
-  // Keep BGM mode in sync
   scene.game.events.on('modeChange', (mode: string) => {
     if (!bgmOn) return
     scene.getSoundManager().switchBGM(mode === 'playing' ? 'play' : 'edit')
   })
+}
+
+// ── Stage editor ──────────────────────────────────────────────────
+
+function setupStageEditor(scene: GameScene, customLevels: CustomLevelManager): void {
+  const btnStageEdit   = document.getElementById('btn-stage-edit')!
+  const btnTestPlay    = document.getElementById('btn-test-play')!
+  const btnSaveStage   = document.getElementById('btn-save-stage')!
+  const btnExitTest    = document.getElementById('btn-exit-test')!
+  const btnFixPart     = document.getElementById('btn-fix-part') as HTMLButtonElement
+  const editorDivider  = document.getElementById('editor-toolbar-divider')!
+  const editorIndicator = document.getElementById('editor-indicator')!
+  const stageSaveModal = document.getElementById('stage-save-modal-overlay')!
+
+  let editorMode = false
+  let testPlaySnapshot: ReturnType<typeof scene.captureEditorState> = []
+  let testPlayConstraints: PartConstraints = {}
+
+  // ── Editor mode toggle ──
+
+  function enterEditorMode(): void {
+    editorMode = true
+    scene.setStageEditorMode(true)
+    btnStageEdit.classList.add('active')
+    btnTestPlay.classList.remove('hidden')
+    btnSaveStage.classList.remove('hidden')
+    btnFixPart.style.display = ''
+    editorDivider.style.display = ''
+    editorIndicator.classList.add('visible')
+  }
+
+  function exitEditorMode(): void {
+    editorMode = false
+    scene.setStageEditorMode(false)
+    btnStageEdit.classList.remove('active')
+    btnTestPlay.classList.add('hidden')
+    btnSaveStage.classList.add('hidden')
+    btnFixPart.style.display = 'none'
+    editorDivider.style.display = 'none'
+    editorIndicator.classList.remove('visible')
+  }
+
+  btnStageEdit.addEventListener('click', () => {
+    if (editorMode) {
+      exitEditorMode()
+    } else {
+      enterEditorMode()
+    }
+  })
+
+  // Exit editor mode when a regular level is loaded
+  scene.game.events.on('levelLoaded', () => {
+    if (editorMode && testPlaySnapshot.length === 0) exitEditorMode()
+  })
+
+  // ── Fix part toggle ──
+
+  scene.game.events.on('selectionChange', () => {
+    if (!editorMode) return
+    const part = scene.getEditManager().getSelectedPart()
+    btnFixPart.classList.toggle('active', part?.isFixed ?? false)
+    btnFixPart.disabled = !part
+  })
+
+  btnFixPart.addEventListener('click', () => {
+    const isNowFixed = scene.toggleFixedOnSelected()
+    if (isNowFixed !== null) btnFixPart.classList.toggle('active', isNowFixed)
+  })
+
+  // ── Test play ──
+
+  btnTestPlay.addEventListener('click', () => {
+    if (scene.getSimManager().getMode() !== 'edit') scene.getSimManager().reset()
+
+    testPlaySnapshot = scene.captureEditorState()
+    const fixedParts = testPlaySnapshot.filter(p => p.isFixed)
+
+    // Build constraints from the save form's current values (or empty = unlimited)
+    testPlayConstraints = readConstraintsFromForm()
+
+    const testLevel: LevelData = {
+      id: `test_${Date.now()}`,
+      title: 'テストプレイ',
+      description: '',
+      difficulty: 1,
+      parParts: 999,
+      constraints: testPlayConstraints,
+      parts: fixedParts,
+    }
+
+    scene.loadLevel(testLevel)
+
+    // Override the normal level UI: hide exit-level, show exit-test
+    document.getElementById('btn-exit-level')?.classList.add('hidden')
+    btnExitTest.classList.remove('hidden')
+  })
+
+  btnExitTest.addEventListener('click', () => {
+    if (scene.getSimManager().getMode() !== 'edit') scene.getSimManager().reset()
+    scene.restoreEditorState(testPlaySnapshot)
+    testPlaySnapshot = []
+    btnExitTest.classList.add('hidden')
+    enterEditorMode()
+  })
+
+  // ── Stage save modal ──
+
+  // Difficulty picker
+  const diffPicker = document.getElementById('diff-picker')!
+  let selectedDiff: 1 | 2 | 3 | 4 | 5 = 3
+  diffPicker.querySelectorAll<HTMLButtonElement>('.diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedDiff = parseInt(btn.dataset.diff ?? '3') as 1 | 2 | 3 | 4 | 5
+      diffPicker.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'))
+      btn.classList.add('selected')
+    })
+  })
+
+  btnSaveStage.addEventListener('click', () => {
+    stageSaveModal.classList.add('visible')
+  })
+
+  document.getElementById('btn-cancel-save-stage')?.addEventListener('click', () => {
+    stageSaveModal.classList.remove('visible')
+  })
+
+  stageSaveModal.addEventListener('click', e => {
+    if (e.target === stageSaveModal) stageSaveModal.classList.remove('visible')
+  })
+
+  document.getElementById('btn-do-save-stage')?.addEventListener('click', () => {
+    const title = (document.getElementById('stage-title-input') as HTMLInputElement).value.trim()
+    if (!title) { showToast('タイトルを入力してください'); return }
+
+    const desc = (document.getElementById('stage-desc-input') as HTMLTextAreaElement).value.trim()
+    const parParts = parseInt((document.getElementById('stage-par-input') as HTMLInputElement).value) || 5
+    const constraints = readConstraintsFromForm()
+    const allParts = scene.captureEditorState()
+    const fixedParts = allParts.filter(p => p.isFixed)
+
+    const level: LevelData = {
+      id: `custom_${Date.now()}`,
+      title,
+      description: desc,
+      difficulty: selectedDiff,
+      parParts,
+      constraints,
+      parts: fixedParts,
+    }
+
+    customLevels.save(level)
+    scene.game.events.emit('customLevelsUpdate')
+    stageSaveModal.classList.remove('visible')
+    showToast(`「${title}」を保存しました！`)
+  })
+}
+
+function showToast(msg: string): void {
+  const el = document.getElementById('toast')!
+  el.textContent = msg
+  el.classList.add('visible')
+  setTimeout(() => el.classList.remove('visible'), 2200)
+}
+
+function readConstraintsFromForm(): PartConstraints {
+  const types: PartType[] = ['ball', 'ramp', 'platform', 'domino', 'seesaw', 'spring', 'bell', 'goal']
+  const constraints: PartConstraints = {}
+  for (const t of types) {
+    const el = document.getElementById(`c-${t}`) as HTMLInputElement | null
+    if (!el || el.value === '') continue
+    constraints[t] = parseInt(el.value)
+  }
+  return constraints
 }
 
 // ── Bootstrap ─────────────────────────────────────────────────────
@@ -259,6 +494,7 @@ function setupBGM(scene: GameScene): void {
 const toolbar    = new Toolbar()
 const controlBar = new ControlBar()
 const saveMenu   = new SaveMenu()
+const customLevels = new CustomLevelManager()
 
 const game = createGame()
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -277,11 +513,12 @@ game.events.once('gameSceneReady', (scene: GameScene) => {
     scene.loadPreset()
   })
 
-  setupLevelModal(scene)
+  setupLevelModal(scene, customLevels)
   setupLevelIndicator(scene)
   setupClearOverlay(scene)
   setupBGM(scene)
   setupSE(scene)
   setupGravityControl(scene)
   setupUIVisibility(scene)
+  setupStageEditor(scene, customLevels)
 })
