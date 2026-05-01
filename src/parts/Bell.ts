@@ -18,8 +18,8 @@ export class Bell extends BasePart {
 
     this._body = scene.matter.add.rectangle(x, y, BELL_W, BELL_H, {
       isStatic: true,
+      isSensor: true,
       label: 'bell',
-      friction: 0.3,
     })
 
     this._graphics = scene.add.graphics()
