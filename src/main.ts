@@ -294,29 +294,37 @@ function setupUIVisibility(scene: GameScene): void {
   })
 }
 
-// ── SE toggle ─────────────────────────────────────────────────────
+// ── Sound popup (BGM + SE) ────────────────────────────────────────
 
-function setupSE(scene: GameScene): void {
-  const btn = document.getElementById('btn-se')!
-  let seOn = true
-  btn.classList.add('on')
+function setupSound(scene: GameScene): void {
+  const btn    = document.getElementById('btn-sound')!
+  const popup  = document.getElementById('sound-popup')!
+  const chkBGM = document.getElementById('chk-bgm') as HTMLInputElement
+  const chkSE  = document.getElementById('chk-se')  as HTMLInputElement
 
-  btn.addEventListener('click', () => {
-    seOn = !seOn
-    btn.classList.toggle('on', seOn)
-    scene.getSoundManager().setSEMuted(!seOn)
-  })
-}
-
-// ── BGM toggle ────────────────────────────────────────────────────
-
-function setupBGM(scene: GameScene): void {
-  const btn = document.getElementById('btn-bgm')!
   let bgmOn = false
 
-  btn.addEventListener('click', () => {
-    bgmOn = !bgmOn
-    btn.classList.toggle('on', bgmOn)
+  // ポップオーバー開閉（control-bar の overflow:hidden を避けて fixed 配置）
+  btn.addEventListener('click', e => {
+    e.stopPropagation()
+    const opening = !popup.classList.contains('open')
+    if (opening) {
+      const rect = btn.getBoundingClientRect()
+      popup.style.top   = `${rect.bottom + 6}px`
+      popup.style.right = `${window.innerWidth - rect.right}px`
+    }
+    popup.classList.toggle('open', opening)
+    btn.classList.toggle('active', opening)
+  })
+  popup.addEventListener('click', e => e.stopPropagation())
+  document.addEventListener('click', () => {
+    popup.classList.remove('open')
+    btn.classList.remove('active')
+  })
+
+  // BGM チェックボックス
+  chkBGM.addEventListener('change', () => {
+    bgmOn = chkBGM.checked
     const sound = scene.getSoundManager()
     if (bgmOn) {
       const mode = scene.getSimManager().getMode() === 'playing' ? 'play' : 'edit'
@@ -324,6 +332,11 @@ function setupBGM(scene: GameScene): void {
     } else {
       sound.stopBGM()
     }
+  })
+
+  // SE チェックボックス
+  chkSE.addEventListener('change', () => {
+    scene.getSoundManager().setSEMuted(!chkSE.checked)
   })
 
   scene.game.events.on('modeChange', (mode: string) => {
@@ -518,8 +531,7 @@ game.events.once('gameSceneReady', (scene: GameScene) => {
   setupLevelModal(scene, customLevels)
   setupLevelIndicator(scene)
   setupClearOverlay(scene)
-  setupBGM(scene)
-  setupSE(scene)
+  setupSound(scene)
   setupGravityControl(scene)
   setupUIVisibility(scene)
   setupStageEditor(scene, customLevels)
