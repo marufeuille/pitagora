@@ -9,6 +9,7 @@ const BELL_H = 42
 export class Bell extends BasePart {
   readonly type: PartType = 'bell'
   private _rung = false
+  private _ringing = false
 
   create(scene: PhysicsScene, x: number, y: number, _options: PartOptions): void {
     this._scene = scene
@@ -18,8 +19,8 @@ export class Bell extends BasePart {
 
     this._body = scene.matter.add.rectangle(x, y, BELL_W, BELL_H, {
       isStatic: true,
+      isSensor: true,
       label: 'bell',
-      friction: 0.3,
     })
 
     this._graphics = scene.add.graphics()
@@ -31,22 +32,47 @@ export class Bell extends BasePart {
   ring(): void {
     if (this._rung) return
     this._rung = true
-    this._scene.tweens.add({
-      targets: this._graphics,
-      rotation: this._graphics.rotation + 0.22,
-      duration: 65,
-      yoyo: true,
-      repeat: 2,
-      ease: 'Sine.InOut',
-      onComplete: () => {
-        this._graphics.rotation = this._body.angle
-      },
-    })
+    this._ringing = true
+    const base = this._body.angle
+    // 減衰振り子：振れ幅を徐々に小さくする
+    const swings = [
+      { angle: base + 0.40, dur: 110 },
+      { angle: base - 0.30, dur: 170 },
+      { angle: base + 0.18, dur: 150 },
+      { angle: base - 0.09, dur: 130 },
+      { angle: base + 0.04, dur: 110 },
+      { angle: base,        dur: 90  },
+    ]
+    const next = (i: number) => {
+      if (i >= swings.length) {
+        this._ringing = false
+        return
+      }
+      this._scene.tweens.add({
+        targets: this._graphics,
+        rotation: swings[i].angle,
+        duration: swings[i].dur,
+        ease: 'Sine.InOut',
+        onComplete: () => next(i + 1),
+      })
+    }
+    next(0)
+  }
+
+  override syncTransform(): void {
+    // アニメーション中は rotation を上書きしない
+    if (this._ringing) {
+      this._graphics.x = this._body.position.x
+      this._graphics.y = this._body.position.y
+    } else {
+      super.syncTransform()
+    }
   }
 
   override onReset(): void {
     super.onReset()
     this._rung = false
+    this._ringing = false
   }
 
   get hasRung(): boolean { return this._rung }
