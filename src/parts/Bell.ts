@@ -31,17 +31,27 @@ export class Bell extends BasePart {
   ring(): void {
     if (this._rung) return
     this._rung = true
-    this._scene.tweens.add({
-      targets: this._graphics,
-      rotation: this._graphics.rotation + 0.22,
-      duration: 65,
-      yoyo: true,
-      repeat: 2,
-      ease: 'Sine.InOut',
-      onComplete: () => {
-        this._graphics.rotation = this._body.angle
-      },
-    })
+    const base = this._body.angle
+    // 減衰振り子：振れ幅を徐々に小さくする
+    const swings = [
+      { angle: base + 0.40, dur: 110 },
+      { angle: base - 0.30, dur: 170 },
+      { angle: base + 0.18, dur: 150 },
+      { angle: base - 0.09, dur: 130 },
+      { angle: base + 0.04, dur: 110 },
+      { angle: base,        dur: 90  },
+    ]
+    const next = (i: number) => {
+      if (i >= swings.length) return
+      this._scene.tweens.add({
+        targets: this._graphics,
+        rotation: swings[i].angle,
+        duration: swings[i].dur,
+        ease: 'Sine.InOut',
+        onComplete: () => next(i + 1),
+      })
+    }
+    next(0)
   }
 
   override onReset(): void {
