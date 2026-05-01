@@ -693,10 +693,6 @@
     <!-- Control Bar -->
     <div id="control-bar">
       <button id="btn-title-menu" title="メニュー">✏ ピタゴラ</button>
-      <div id="title-menu-popup" class="title-menu-popup">
-        <button id="title-item-save">💾 ほぞん・よみこみ</button>
-        <button id="title-item-stage">🛠 ステージをつくる</button>
-      </div>
 
       <!-- 常に非表示：既存のイベントリスナー用 -->
       <button id="btn-save"       style="display:none" title="ほぞん・よみこみ">💾</button>
@@ -951,6 +947,12 @@
           <button class="btn-secondary" id="btn-close-level-modal"><span data-en="Close">とじる</span></button>
         </div>
       </div>
+    </div>
+
+    <!-- Title menu popup (body直下でz-index:200がtoolbarより確実に前面に出る) -->
+    <div id="title-menu-popup" class="title-menu-popup">
+      <button id="title-item-save">💾 ほぞん・よみこみ</button>
+      <button id="title-item-stage">🛠 ステージをつくる</button>
     </div>
 
     <div id="tip">右クリック/2本指ドラッグ: カメラ移動　ホイール/ピンチ: ズーム　Delete: 削除　Ctrl+Z: 元に戻す</div>
