@@ -237,7 +237,7 @@ export class SoundManager {
     const isPlay   = this._bgmMode === 'play'
     const beatDur  = isPlay ? 0.22 : 0.44
     const seq      = isPlay ? playSeq : editSeq
-    const volBase  = isPlay ? 0.06 : 0.04
+    const volBase  = isPlay ? 0.18 : 0.12
 
     while (this._bgmNextTime < now + schedAhead) {
       const step = this._bgmStep % seq.length
