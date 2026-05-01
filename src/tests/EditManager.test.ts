@@ -34,6 +34,7 @@ class FakeGraphics {
   beginPath() { return this }
   moveTo() { return this }
   lineTo() { return this }
+  arc() { return this }
   strokePath() { return this }
   fillTriangle() { return this }
   destroy() {}

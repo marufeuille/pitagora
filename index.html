@@ -388,6 +388,35 @@
         z-index: 50;
       }
 
+      /* ── Gravity control (free play only) ── */
+      #gravity-control {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0 10px;
+        height: 34px;
+        border: 2px solid #c8b898;
+        border-radius: 6px;
+        background: #f0ece0;
+        color: #3a2e20;
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 13px;
+      }
+      #gravity-control.hidden { display: none; }
+      #gravity-slider {
+        width: 80px;
+        accent-color: #8a6a30;
+        cursor: pointer;
+      }
+      #gravity-label {
+        min-width: 32px;
+        font-size: 13px;
+        font-weight: 700;
+        font-family: inherit;
+        color: #3a2010;
+      }
+
       /* ── Level mode indicator ── */
       #level-indicator {
         display: none;
@@ -415,6 +444,11 @@
       <button id="btn-preset">★ Preset</button>
       <button id="btn-save">💾 Save/Load</button>
       <button id="btn-bgm" title="BGM切り替え">♪ BGM</button>
+      <span id="gravity-control" title="重力の強さを変更（フリープレイのみ）">
+        🌍 重力
+        <input type="range" id="gravity-slider" min="0.25" max="4" step="0.25" value="1">
+        <span id="gravity-label">×1</span>
+      </span>
       <span id="level-indicator"></span>
       <span id="mode-badge">EDIT</span>
     </div>
