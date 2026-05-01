@@ -25,9 +25,10 @@
         border-bottom: 2.5px solid #c8b898;
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 0 14px;
+        gap: 5px;
+        padding: 0 10px;
         z-index: 100;
+        overflow: hidden;
       }
       #control-bar .title {
         color: #3a2e20;
@@ -38,17 +39,20 @@
       }
       #control-bar button {
         height: 34px;
-        padding: 0 13px;
+        min-width: 34px;
+        padding: 0 7px;
         border-radius: 6px;
         font-family: inherit;
-        font-size: 15px;
+        font-size: 17px;
         font-weight: 600;
         cursor: pointer;
         transition: filter 0.12s, transform 0.1s;
         display: flex;
         align-items: center;
-        gap: 5px;
+        justify-content: center;
+        gap: 4px;
         border: 2px solid transparent;
+        flex-shrink: 0;
       }
       #btn-play   { background: #d4edda; color: #2a6e3c; border-color: #88c4a0; }
       #btn-pause  { background: #fce8c8; color: #7a4a10; border-color: #d4a860; display: none; }
@@ -64,10 +68,25 @@
       #btn-se      { background: #f0ece0; color: #3a2e20; border-color: #c8b898; }
       #btn-se.on   { background: #d4edda; color: #2a6e3c; border-color: #88c4a0; }
 
+      /* Stage editor buttons */
+      #btn-stage-edit  { background: #f0e0f8; color: #5a2a7a; border-color: #c09ad8; }
+      #btn-stage-edit.active { background: #d4a8f4; color: #3a1a5a; border-color: #9060c0; }
+      #btn-test-play   { background: #d4f0e8; color: #1a6a4a; border-color: #70c0a0; }
+      #btn-save-stage  { background: #f4e8d0; color: #6a4010; border-color: #c0a060; }
+      #btn-exit-test   { background: #d4e8f8; color: #2a4a78; border-color: #80a8d8; }
+
+      .cb-sep {
+        width: 1.5px;
+        height: 22px;
+        background: #d0c4b0;
+        flex-shrink: 0;
+        margin: 0 2px;
+      }
+      .cb-spacer { margin-left: auto; }
+
       #control-bar button:hover { filter: brightness(0.93); }
       #control-bar button:active { transform: scale(0.95); }
       #mode-badge {
-        margin-left: auto;
         padding: 4px 12px;
         border-radius: 14px;
         font-family: inherit;
@@ -344,7 +363,7 @@
         border-radius: 12px;
         padding: 24px;
         width: 520px;
-        max-height: 560px;
+        max-height: 80vh;
         display: flex;
         flex-direction: column;
         gap: 12px;
@@ -377,6 +396,135 @@
         display: flex;
         gap: 8px;
         justify-content: flex-end;
+      }
+      /* Custom level cards */
+      .level-card.custom { background: #f0e8f8; border-color: #c098d8; }
+      .level-card.custom:hover { background: #e4d8f0; border-color: #a070c0; }
+      .level-card .lc-actions {
+        display: flex;
+        gap: 6px;
+        margin-top: 4px;
+      }
+      .level-card .lc-actions button {
+        padding: 2px 8px;
+        border-radius: 4px;
+        border: 1.5px solid;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .lc-btn-export { background: #d4edda; color: #2a6e3c; border-color: #88c4a0; }
+      .lc-btn-delete { background: #fad8d4; color: #7a2a20; border-color: #d49090; }
+      .section-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #7a6a58;
+        font-family: inherit;
+        padding: 4px 0 2px;
+        border-bottom: 1.5px solid #d0c4b0;
+      }
+
+      /* ── Stage save modal ── */
+      #stage-save-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(180,160,130,0.5);
+        z-index: 250;
+        justify-content: center;
+        align-items: center;
+      }
+      #stage-save-modal-overlay.visible { display: flex; }
+      #stage-save-modal {
+        background: #faf7f0;
+        border: 2.5px solid #c8b898;
+        border-radius: 12px;
+        padding: 24px;
+        width: 400px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        box-shadow: 4px 4px 0 #d0c4b0;
+        overflow-y: auto;
+      }
+      #stage-save-modal h2 { color: #3a2e20; font-size: 20px; font-family: inherit; }
+      #stage-save-modal label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #5a4a38;
+        font-family: inherit;
+      }
+      #stage-save-modal input[type="text"],
+      #stage-save-modal textarea,
+      #stage-save-modal select {
+        background: #fff;
+        border: 2px solid #c8b898;
+        border-radius: 6px;
+        color: #3a2e20;
+        padding: 6px 10px;
+        font-family: inherit;
+        font-size: 14px;
+        width: 100%;
+      }
+      #stage-save-modal textarea { resize: vertical; min-height: 52px; }
+      .diff-picker {
+        display: flex;
+        gap: 6px;
+      }
+      .diff-btn {
+        flex: 1;
+        padding: 6px 0;
+        border-radius: 6px;
+        border: 2px solid #c8b898;
+        background: #f0ece0;
+        color: #3a2e20;
+        font-family: inherit;
+        font-size: 18px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.1s;
+      }
+      .diff-btn.selected { background: #c8a050; border-color: #9a7030; color: #fff; }
+      .constraints-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+      }
+      .constraint-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        color: #5a4a38;
+        font-family: inherit;
+        font-weight: 600;
+      }
+      .constraint-item .icon { font-size: 20px; }
+      .constraint-item input[type="number"] {
+        width: 52px;
+        text-align: center;
+        padding: 4px 6px;
+        font-size: 14px;
+      }
+      .stage-modal-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+      .stage-modal-actions button {
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: 2px solid;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 600;
       }
 
       /* ── Tip ── */
@@ -434,29 +582,84 @@
         font-weight: 600;
       }
       #level-indicator.visible { display: inline-flex; align-items: center; gap: 6px; }
+
+      /* ── Toast notification ── */
+      #toast {
+        position: fixed;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        background: #3a2e20;
+        color: #faf7f0;
+        padding: 10px 22px;
+        border-radius: 20px;
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 600;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 500;
+        transition: opacity 0.2s, transform 0.2s;
+      }
+      #toast.visible {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* ── Stage editor indicator ── */
+      #editor-indicator {
+        display: none;
+        background: #ead8f8;
+        color: #5a2a7a;
+        border: 2px solid #c098d8;
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      #editor-indicator.visible { display: inline-flex; align-items: center; gap: 6px; }
     </style>
   </head>
   <body>
     <!-- Control Bar -->
     <div id="control-bar">
-      <span class="title">✏ ピタゴラスイッチ</span>
-      <button id="btn-play">▶ <span data-en="Play">さいせい</span></button>
-      <button id="btn-pause">⏸ <span data-en="Pause">とめる</span></button>
-      <button id="btn-reset">↩ <span data-en="Reset">はじめから</span></button>
-      <button id="btn-clear">🗑 <span data-en="Clear">けす</span></button>
-      <button id="btn-levels">🎯 <span data-en="Levels">れべる</span></button>
-      <button id="btn-exit-level" class="hidden">← <span data-en="Free Play">フリーあそび</span></button>
-      <button id="btn-preset">★ <span data-en="Preset">プリセット</span></button>
-      <button id="btn-save">💾 <span data-en="Save/Load">ほぞん</span></button>
-      <button id="btn-bgm" title="BGM切り替え">♪ <span data-en="BGM">おんがく</span></button>
-      <button id="btn-se" title="効果音切り替え">🔊 <span data-en="SE">こうかおん</span></button>
+      <span class="title">✏ ピタゴラ</span>
+
+      <!-- Group 1: 再生コントロール -->
+      <button id="btn-play"       title="さいせい（ゴールが必要）">▶</button>
+      <button id="btn-pause"      title="とめる">⏸</button>
+      <button id="btn-reset"      title="はじめから">↺</button>
+
+      <span class="cb-sep"></span>
+
+      <!-- Group 2: ステージ管理・エディター -->
+      <button id="btn-clear"      title="ぜんぶけす">🗑</button>
+      <button id="btn-levels"     title="れべるをえらぶ">🎯</button>
+      <button id="btn-preset"     title="プリセット">★</button>
+      <button id="btn-save"       title="ほぞん・よみこみ">💾</button>
+      <button id="btn-stage-edit" title="ステージをつくる">🛠</button>
+      <button id="btn-test-play"  title="テストプレイ" class="hidden">▶</button>
+      <button id="btn-save-stage" title="ステージをほぞん" class="hidden">💾</button>
+      <button id="btn-exit-level" title="フリーあそびにもどる" class="hidden">←</button>
+      <button id="btn-exit-test"  title="エディターにもどる" class="hidden">←</button>
+
+      <span class="cb-sep"></span>
+
+      <!-- Group 3: オーディオ・設定 -->
+      <button id="btn-bgm"        title="BGM切り替え">♪</button>
+      <button id="btn-se"         title="効果音切り替え">🔊</button>
       <span id="gravity-control" title="重力の強さを変更（フリープレイのみ）">
-        🌍 <span data-en="Gravity">じゅうりょく</span>
+        🌍
         <input type="range" id="gravity-slider" min="0.25" max="4" step="0.25" value="1">
         <span id="gravity-label">×1</span>
       </span>
+
+      <!-- 右寄せエリア -->
+      <span class="cb-spacer"></span>
       <span id="level-indicator"></span>
-      <span id="mode-badge">EDIT</span>
+      <span id="editor-indicator">🛠 エディター</span>
+      <span id="mode-badge"></span>
     </div>
 
     <!-- Toolbar -->
@@ -552,6 +755,90 @@
       </div>
     </div>
 
+    <!-- Stage Save Modal -->
+    <div id="stage-save-modal-overlay">
+      <div id="stage-save-modal">
+        <h2>🛠 ステージをほぞん</h2>
+
+        <label>
+          タイトル
+          <input type="text" id="stage-title-input" placeholder="ステージ名を入力..." maxlength="30" />
+        </label>
+
+        <label>
+          せつめい
+          <textarea id="stage-desc-input" placeholder="どんなステージか説明しよう" maxlength="80" rows="2"></textarea>
+        </label>
+
+        <label>
+          むずかしさ
+          <div class="diff-picker" id="diff-picker">
+            <button class="diff-btn" data-diff="1" title="かんたん">★</button>
+            <button class="diff-btn" data-diff="2" title="ふつう">★★</button>
+            <button class="diff-btn selected" data-diff="3" title="むずかしい">★★★</button>
+            <button class="diff-btn" data-diff="4" title="とてもむずかしい">★★★★</button>
+            <button class="diff-btn" data-diff="5" title="超むずかしい">★★★★★</button>
+          </div>
+        </label>
+
+        <label>
+          パーパーツ数（この数以下でクリアすると ★★★）
+          <input type="number" id="stage-par-input" min="1" max="99" value="5" style="width:80px;" />
+        </label>
+
+        <label>
+          つかえるパーツ（空白 = 無制限、0 = 使えない）
+          <div class="constraints-grid">
+            <div class="constraint-item">
+              <span class="icon">🔵</span>
+              <span>ボール</span>
+              <input type="number" id="c-ball" min="0" max="99" placeholder="∞" />
+            </div>
+            <div class="constraint-item">
+              <span class="icon">╱</span>
+              <span>ナナメ</span>
+              <input type="number" id="c-ramp" min="0" max="99" placeholder="∞" />
+            </div>
+            <div class="constraint-item">
+              <span class="icon">─</span>
+              <span>いた</span>
+              <input type="number" id="c-platform" min="0" max="99" placeholder="∞" />
+            </div>
+            <div class="constraint-item">
+              <span class="icon">▌</span>
+              <span>ドミノ</span>
+              <input type="number" id="c-domino" min="0" max="99" placeholder="∞" />
+            </div>
+            <div class="constraint-item">
+              <span class="icon">⚖</span>
+              <span>シーソー</span>
+              <input type="number" id="c-seesaw" min="0" max="99" placeholder="∞" />
+            </div>
+            <div class="constraint-item">
+              <span class="icon">🌀</span>
+              <span>バネ</span>
+              <input type="number" id="c-spring" min="0" max="99" placeholder="∞" />
+            </div>
+            <div class="constraint-item">
+              <span class="icon">🔔</span>
+              <span>ベル</span>
+              <input type="number" id="c-bell" min="0" max="99" placeholder="∞" />
+            </div>
+            <div class="constraint-item">
+              <span class="icon">⭐</span>
+              <span>ゴール</span>
+              <input type="number" id="c-goal" min="0" max="99" placeholder="∞" />
+            </div>
+          </div>
+        </label>
+
+        <div class="stage-modal-actions">
+          <button class="btn-secondary" id="btn-cancel-save-stage">キャンセル</button>
+          <button class="btn-primary" id="btn-do-save-stage">💾 ほぞん</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Clear overlay -->
     <div id="clear-overlay">
       <div id="clear-card">
@@ -569,7 +856,18 @@
     <div id="level-modal-overlay">
       <div id="level-modal">
         <h2>🎯 <span data-en="Select Level">れべるせんたく</span></h2>
+        <div class="section-title">📚 ステージ</div>
         <div class="level-grid" id="level-grid"></div>
+        <div id="custom-levels-section" style="display:none;">
+          <div class="section-title">🛠 マイステージ</div>
+          <div class="level-grid" id="custom-level-grid"></div>
+          <div style="margin-top:8px;">
+            <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-family:inherit; font-size:13px; font-weight:600; color:#5a4a38; padding:6px 12px; background:#eee0f8; border:2px solid #c098d8; border-radius:6px;">
+              ↓ JSONをインポート
+              <input type="file" id="stage-import-file" accept=".json" style="display:none;" />
+            </label>
+          </div>
+        </div>
         <div class="level-modal-footer">
           <button class="btn-secondary" id="btn-close-level-modal"><span data-en="Close">とじる</span></button>
         </div>
@@ -577,6 +875,7 @@
     </div>
 
     <div id="tip">右クリック/2本指ドラッグ: カメラ移動　ホイール/ピンチ: ズーム　Delete: 削除　Ctrl+Z: 元に戻す</div>
+    <div id="toast"></div>
 
     <script type="module" src="/src/main.ts"></script>
   </body>

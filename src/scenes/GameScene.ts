@@ -12,7 +12,7 @@ import {
   DOMINO_W, DOMINO_H, SEESAW_W, SEESAW_H,
   COLOR_BALL_FILL, COLOR_WOOD_FILL, COLOR_DOMINO_FILL,
 } from '../constants'
-import type { PartType } from '../types/PartTypes'
+import type { PartType, PartData } from '../types/PartTypes'
 import type { LevelData } from '../types/LevelTypes'
 import type { BasePart } from '../parts/BasePart'
 
@@ -31,6 +31,8 @@ export class GameScene extends Phaser.Scene {
   private _ghost!: Phaser.GameObjects.Graphics
   private _worldH = WORLD_HEIGHT
   private _rotHandle!: Phaser.GameObjects.Graphics
+  private _editorOverlay!: Phaser.GameObjects.Graphics
+  private _stageEditorMode = false
 
   // Rotation handle state
   private _rotating = false
@@ -82,6 +84,8 @@ export class GameScene extends Phaser.Scene {
     this._ghost.setDepth(10)
     this._rotHandle = this.add.graphics()
     this._rotHandle.setDepth(11)
+    this._editorOverlay = this.add.graphics()
+    this._editorOverlay.setDepth(9)
 
     this._setupInput()
 
@@ -100,6 +104,7 @@ export class GameScene extends Phaser.Scene {
     }
     this._sim.checkGoals()
     this._drawRotHandle()
+    if (this._stageEditorMode) this._drawEditorOverlay()
   }
 
   // ── Public API ────────────────────────────────────────────────
@@ -124,7 +129,8 @@ export class GameScene extends Phaser.Scene {
 
   loadLevel(level: LevelData): void {
     this._sim.fullReset()
-    this._edit.setLevelMode(true, level.constraints)
+    const constraints = Object.keys(level.constraints).length > 0 ? level.constraints : null
+    this._edit.setLevelMode(true, constraints)
 
     for (const item of level.parts) {
       this._edit.restorePart(item)
@@ -141,6 +147,48 @@ export class GameScene extends Phaser.Scene {
     this._levels.exitLevelMode()
     this._updateConstraintUI()
     this.game.events.emit('levelExited')
+  }
+
+  // ── Stage editor ──────────────────────────────────────────────
+
+  setStageEditorMode(enabled: boolean): void {
+    this._stageEditorMode = enabled
+    if (!enabled) this._editorOverlay.clear()
+    this.game.events.emit('stageEditorModeChange', enabled)
+  }
+
+  isStageEditorMode(): boolean { return this._stageEditorMode }
+
+  captureEditorState(): PartData[] {
+    return this._edit.getAllParts().map(p => p.serialize())
+  }
+
+  restoreEditorState(snapshots: PartData[]): void {
+    this._sim.fullReset()
+    this._levels.exitLevelMode()
+    for (const data of snapshots) {
+      this._edit.restorePart(data)
+    }
+    this._updateConstraintUI()
+    this.game.events.emit('levelExited')
+  }
+
+  toggleFixedOnSelected(): boolean | null {
+    const part = this._edit.getSelectedPart()
+    if (!part) return null
+    part.isFixed = !part.isFixed
+    return part.isFixed
+  }
+
+  private _drawEditorOverlay(): void {
+    this._editorOverlay.clear()
+    for (const part of this._edit.getAllParts()) {
+      const { x, y } = part.body.position
+      this._editorOverlay.fillStyle(0x2255cc, 0.25)
+      this._editorOverlay.fillCircle(x, y, 7)
+      this._editorOverlay.lineStyle(1.5, 0x88aaff, 0.7)
+      this._editorOverlay.strokeCircle(x, y, 7)
+    }
   }
 
   // ── Preset ───────────────────────────────────────────────────
