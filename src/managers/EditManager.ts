@@ -83,6 +83,7 @@ export class EditManager {
       this._userPlaced[this._activeTool] = (this._userPlaced[this._activeTool] ?? 0) + 1
       this._scene.game.events.emit('constraintUpdate')
     }
+    this._scene.game.events.emit('undoRedoUpdate')
     return part
   }
 
@@ -163,6 +164,7 @@ export class EditManager {
         this._userPlaced[t] = Math.max(0, (this._userPlaced[t] ?? 0) - 1)
         this._scene.game.events.emit('constraintUpdate')
       }
+      this._scene.game.events.emit('undoRedoUpdate')
     }
   }
 
@@ -179,6 +181,7 @@ export class EditManager {
       this._undo.push({ type: 'move', id: part.id, from: { x: origX, y: origY }, to: { x: newX, y: newY } })
       this._redo = []
       part.saveInitialState()
+      this._scene.game.events.emit('undoRedoUpdate')
     }
   }
 
@@ -190,6 +193,7 @@ export class EditManager {
       part.setAngle(next)
       this._undo.push({ type: 'rotate', id: part.id, from: prev, to: next })
       this._redo = []
+      this._scene.game.events.emit('undoRedoUpdate')
     }
   }
 
@@ -202,10 +206,14 @@ export class EditManager {
     if (Math.abs(toAngle - fromAngle) > 0.001) {
       this._undo.push({ type: 'rotate', id: part.id, from: fromAngle, to: toAngle })
       this._redo = []
+      this._scene.game.events.emit('undoRedoUpdate')
     }
   }
 
   // ── Undo / Redo ─────────────────────────────────────────────────
+
+  canUndo(): boolean { return this._undo.length > 0 }
+  canRedo(): boolean { return this._redo.length > 0 }
 
   undo(): void {
     const entry = this._undo.pop()
@@ -249,6 +257,7 @@ export class EditManager {
         break
       }
     }
+    this._scene.game.events.emit('undoRedoUpdate')
   }
 
   redo(): void {
@@ -293,6 +302,7 @@ export class EditManager {
         break
       }
     }
+    this._scene.game.events.emit('undoRedoUpdate')
   }
 
   // ── Bulk ops ────────────────────────────────────────────────────
