@@ -2,8 +2,11 @@ import { createGame } from './game'
 import { Toolbar } from './ui/Toolbar'
 import { ControlBar } from './ui/ControlBar'
 import { SaveMenu } from './ui/SaveMenu'
+import { applyLocale } from './ui/locale'
 import type { GameScene } from './scenes/GameScene'
 import type { LevelData } from './types/LevelTypes'
+
+applyLocale()
 
 // Context menu wiring
 let _contextTarget: import('./parts/BasePart').BasePart | null = null
