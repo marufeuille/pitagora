@@ -2,15 +2,20 @@ import type { GameScene } from '../scenes/GameScene'
 import { getModeLabel } from './locale'
 
 export class ControlBar {
-  private _btnPlay  = document.getElementById('btn-play')  as HTMLButtonElement
-  private _btnPause = document.getElementById('btn-pause') as HTMLButtonElement
-  private _btnReset = document.getElementById('btn-reset') as HTMLButtonElement
-  private _btnClear = document.getElementById('btn-clear') as HTMLButtonElement
-  private _badge    = document.getElementById('mode-badge') as HTMLElement
+  private _btnPlay    = document.getElementById('btn-play')  as HTMLButtonElement
+  private _btnPause   = document.getElementById('btn-pause') as HTMLButtonElement
+  private _btnReset   = document.getElementById('btn-reset') as HTMLButtonElement
+  private _btnClear   = document.getElementById('btn-clear') as HTMLButtonElement
+  private _badge      = document.getElementById('mode-badge') as HTMLElement
+  private _inLevelMode = false
 
   connectToScene(scene: GameScene): void {
+    scene.game.events.on('levelLoaded', () => { this._inLevelMode = true })
+    scene.game.events.on('levelExited', () => { this._inLevelMode = false })
+
     this._btnPlay.addEventListener('click', () => {
-      if (scene.getEditManager().getGoals().length === 0) {
+      // Goal check only in free play — in level/test-play mode goals are fixed and can't be added
+      if (!this._inLevelMode && scene.getEditManager().getGoals().length === 0) {
         this._showToast('ゴールを置いてください！')
         return
       }

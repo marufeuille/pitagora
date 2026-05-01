@@ -366,6 +366,11 @@ function setupStageEditor(scene: GameScene, customLevels: CustomLevelManager): v
   // ── Test play ──
 
   btnTestPlay.addEventListener('click', () => {
+    if (scene.getEditManager().getGoals().length === 0) {
+      showToast('ゴールを置いてください！')
+      return
+    }
+
     if (scene.getSimManager().getMode() !== 'edit') scene.getSimManager().reset()
 
     testPlaySnapshot = scene.captureEditorState()
