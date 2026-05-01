@@ -61,6 +61,7 @@ export class Toolbar {
 
   private _syncUndoRedo(): void {
     if (!this._scene) return
+    if (this._scene.getSimManager().getMode() !== 'edit') return
     const edit = this._scene.getEditManager()
     ;(document.getElementById('btn-undo') as HTMLButtonElement).disabled = !edit.canUndo()
     ;(document.getElementById('btn-redo') as HTMLButtonElement).disabled = !edit.canRedo()
