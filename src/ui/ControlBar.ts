@@ -1,4 +1,5 @@
 import type { GameScene } from '../scenes/GameScene'
+import { getModeLabel } from './locale'
 
 export class ControlBar {
   private _btnPlay  = document.getElementById('btn-play')  as HTMLButtonElement
@@ -20,7 +21,7 @@ export class ControlBar {
   }
 
   private _updateMode(mode: string): void {
-    this._badge.textContent = mode.toUpperCase()
+    this._badge.textContent = getModeLabel(mode)
     this._badge.className = mode === 'edit' ? '' : mode
     this._badge.classList.add('mode-badge-base')
 

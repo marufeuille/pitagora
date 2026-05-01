@@ -440,18 +440,18 @@
     <!-- Control Bar -->
     <div id="control-bar">
       <span class="title">✏ ピタゴラスイッチ</span>
-      <button id="btn-play">▶ Play</button>
-      <button id="btn-pause">⏸ Pause</button>
-      <button id="btn-reset">↩ Reset</button>
-      <button id="btn-clear">🗑 Clear</button>
-      <button id="btn-levels">🎯 レベル</button>
-      <button id="btn-exit-level" class="hidden">← フリープレイ</button>
-      <button id="btn-preset">★ Preset</button>
-      <button id="btn-save">💾 Save/Load</button>
-      <button id="btn-bgm" title="BGM切り替え">♪ BGM</button>
-      <button id="btn-se" title="効果音切り替え">🔊 SE</button>
+      <button id="btn-play">▶ <span data-en="Play">さいせい</span></button>
+      <button id="btn-pause">⏸ <span data-en="Pause">とめる</span></button>
+      <button id="btn-reset">↩ <span data-en="Reset">もどす</span></button>
+      <button id="btn-clear">🗑 <span data-en="Clear">けす</span></button>
+      <button id="btn-levels">🎯 <span data-en="Levels">れべる</span></button>
+      <button id="btn-exit-level" class="hidden">← <span data-en="Free Play">フリーあそび</span></button>
+      <button id="btn-preset">★ <span data-en="Preset">プリセット</span></button>
+      <button id="btn-save">💾 <span data-en="Save/Load">ほぞん</span></button>
+      <button id="btn-bgm" title="BGM切り替え">♪ <span data-en="BGM">おんがく</span></button>
+      <button id="btn-se" title="効果音切り替え">🔊 <span data-en="SE">こうかおん</span></button>
       <span id="gravity-control" title="重力の強さを変更（フリープレイのみ）">
-        🌍 重力
+        🌍 <span data-en="Gravity">じゅうりょく</span>
         <input type="range" id="gravity-slider" min="0.25" max="4" step="0.25" value="1">
         <span id="gravity-label">×1</span>
       </span>
@@ -461,62 +461,62 @@
 
     <!-- Toolbar -->
     <div id="toolbar">
-      <span class="section-label">ツール</span>
+      <span class="section-label" data-en="Tool">ツール</span>
       <button class="tool-btn cursor-tool active" data-tool="cursor" title="選択・移動">
         <span class="icon">↖</span>
-        <span>選択</span>
+        <span data-en="Cursor">えらぶ</span>
       </button>
       <div class="divider"></div>
-      <span class="section-label">パーツ</span>
+      <span class="section-label" data-en="Parts">パーツ</span>
       <button class="tool-btn" data-tool="ball" title="ボール">
         <span class="icon">🔵</span>
-        <span>ボール</span>
+        <span data-en="Ball">ボール</span>
       </button>
       <button class="tool-btn" data-tool="ramp" title="斜面">
         <span class="icon">╱</span>
-        <span>斜面</span>
+        <span data-en="Ramp">ナナメ</span>
       </button>
       <button class="tool-btn" data-tool="platform" title="板">
         <span class="icon">─</span>
-        <span>板</span>
+        <span data-en="Platform">いた</span>
       </button>
       <button class="tool-btn" data-tool="domino" title="ドミノ">
         <span class="icon">▌</span>
-        <span>ドミノ</span>
+        <span data-en="Domino">ドミノ</span>
       </button>
       <button class="tool-btn" data-tool="seesaw" title="シーソー">
         <span class="icon">⚖</span>
-        <span>シーソー</span>
-      </button>
-      <button class="tool-btn" data-tool="goal" title="ゴール">
-        <span class="icon">⭐</span>
-        <span>ゴール</span>
+        <span data-en="Seesaw">シーソー</span>
       </button>
       <button class="tool-btn" data-tool="spring" title="バネ">
         <span class="icon">🌀</span>
-        <span>バネ</span>
+        <span data-en="Spring">バネ</span>
       </button>
       <button class="tool-btn" data-tool="bell" title="ベル">
         <span class="icon">🔔</span>
-        <span>ベル</span>
+        <span data-en="Bell">ベル</span>
+      </button>
+      <button class="tool-btn" data-tool="goal" title="ゴール">
+        <span class="icon">⭐</span>
+        <span data-en="Goal">ゴール</span>
       </button>
       <div class="divider"></div>
-      <span class="section-label">操作</span>
+      <span class="section-label" data-en="Actions">そうさ</span>
       <button class="tool-btn" id="btn-rotate-part" title="右回転 15°">
         <span class="icon">↻</span>
-        <span>回転</span>
+        <span data-en="Rotate">まわす</span>
       </button>
       <button class="tool-btn" id="btn-delete-part" title="削除">
         <span class="icon">🗑</span>
-        <span>削除</span>
+        <span data-en="Delete">けす</span>
       </button>
       <button class="tool-btn" id="btn-undo" title="元に戻す (Ctrl+Z)" disabled>
         <span class="icon">↩</span>
-        <span>Undo</span>
+        <span data-en="Undo">もどす</span>
       </button>
       <button class="tool-btn" id="btn-redo" title="やり直す (Ctrl+Shift+Z)" disabled>
         <span class="icon">↪</span>
-        <span>Redo</span>
+        <span data-en="Redo">すすむ</span>
       </button>
     </div>
 
@@ -525,29 +525,29 @@
 
     <!-- Context Menu -->
     <div id="context-menu">
-      <button id="ctx-rotate-cw">↻ 時計回りに回転</button>
-      <button id="ctx-rotate-ccw">↺ 反時計回り</button>
+      <button id="ctx-rotate-cw">↻ <span data-en="Rotate CW">じどけいまわり</span></button>
+      <button id="ctx-rotate-ccw">↺ <span data-en="Rotate CCW">はんじどけいまわり</span></button>
       <div class="separator"></div>
-      <button id="ctx-duplicate">⧉ 複製</button>
-      <button id="ctx-delete">🗑 削除</button>
+      <button id="ctx-duplicate">⧉ <span data-en="Duplicate">コピー</span></button>
+      <button id="ctx-delete">🗑 <span data-en="Delete">けす</span></button>
     </div>
 
     <!-- Save Modal -->
     <div id="save-modal-overlay">
       <div id="save-modal">
-        <h2>💾 Save / Load</h2>
+        <h2>💾 <span data-en="Save / Load">ほぞん・よみこみ</span></h2>
         <div style="display:flex; gap:8px;">
           <input id="save-name-input" type="text" placeholder="セーブ名を入力..." maxlength="30" />
-          <button class="btn-primary" id="btn-do-save" style="padding:8px 12px; border-radius:6px; border:none; cursor:pointer; font-weight:700;">保存</button>
+          <button class="btn-primary" id="btn-do-save" style="padding:8px 12px; border-radius:6px; border:none; cursor:pointer; font-weight:700;"><span data-en="Save">ほぞん</span></button>
         </div>
         <div class="slot-list" id="slot-list"></div>
         <div class="modal-actions">
-          <button class="btn-export" id="btn-export-json">↑ エクスポート</button>
+          <button class="btn-export" id="btn-export-json">↑ <span data-en="Export">エクスポート</span></button>
           <label class="btn-export" style="padding:8px 14px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:600; background:#27ae60; color:#fff;">
-            ↓ インポート
+            ↓ <span data-en="Import">インポート</span>
             <input type="file" id="import-file-input" accept=".json" style="display:none;" />
           </label>
-          <button class="btn-secondary" id="btn-close-modal">閉じる</button>
+          <button class="btn-secondary" id="btn-close-modal"><span data-en="Close">とじる</span></button>
         </div>
       </div>
     </div>
@@ -559,8 +559,8 @@
         <div class="clear-stars" id="clear-stars-display">⭐⭐⭐</div>
         <div class="clear-sub" id="clear-sub-text">ボールがゴールに入った！</div>
         <div style="display:flex; gap:10px; justify-content:center;">
-          <button id="btn-clear-reset">もう一度</button>
-          <button id="btn-next-level" style="display:none; background:#d4edda; color:#2a6e3c; border-color:#88c4a0;">次のレベル →</button>
+          <button id="btn-clear-reset"><span data-en="Try Again">もういちど</span></button>
+          <button id="btn-next-level" style="display:none; background:#d4edda; color:#2a6e3c; border-color:#88c4a0;"><span data-en="Next Level →">つぎのれべる →</span></button>
         </div>
       </div>
     </div>
@@ -568,10 +568,10 @@
     <!-- Level select modal -->
     <div id="level-modal-overlay">
       <div id="level-modal">
-        <h2>🎯 レベル選択</h2>
+        <h2>🎯 <span data-en="Select Level">れべるせんたく</span></h2>
         <div class="level-grid" id="level-grid"></div>
         <div class="level-modal-footer">
-          <button class="btn-secondary" id="btn-close-level-modal">閉じる</button>
+          <button class="btn-secondary" id="btn-close-level-modal"><span data-en="Close">とじる</span></button>
         </div>
       </div>
     </div>
