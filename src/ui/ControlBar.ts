@@ -25,22 +25,15 @@ export class ControlBar {
     this._btnPause.addEventListener('click', () => scene.getSimManager().pause())
     this._btnReset.addEventListener('click', () => scene.getSimManager().reset())
 
-    // 2-click confirmation instead of confirm() dialog
-    this._btnClear.addEventListener('click', () => {
-      if (this._btnClear.dataset.confirm === '1') {
-        scene.getSimManager().fullReset()
-        this._btnClear.textContent = '🗑'
-        this._btnClear.dataset.confirm = ''
-        return
-      }
-      this._btnClear.textContent = '？'
-      this._btnClear.dataset.confirm = '1'
-      setTimeout(() => {
-        if (this._btnClear.dataset.confirm === '1') {
-          this._btnClear.textContent = '🗑'
-          this._btnClear.dataset.confirm = ''
-        }
-      }, 2500)
+    const deleteOverlay = document.getElementById('delete-confirm-overlay')!
+    this._btnClear.addEventListener('click', () => deleteOverlay.classList.add('visible'))
+    document.getElementById('btn-delete-cancel')!.addEventListener('click', () => deleteOverlay.classList.remove('visible'))
+    document.getElementById('btn-delete-confirm')!.addEventListener('click', () => {
+      deleteOverlay.classList.remove('visible')
+      scene.getSimManager().fullReset()
+    })
+    deleteOverlay.addEventListener('click', (e) => {
+      if (e.target === deleteOverlay) deleteOverlay.classList.remove('visible')
     })
 
     scene.game.events.on('modeChange', (mode: string) => this._updateMode(mode))
