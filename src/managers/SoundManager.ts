@@ -18,6 +18,7 @@ export class SoundManager {
 
   private _getCtx(): AudioContext {
     if (!this._ctx) this._ctx = new AudioContext()
+    if (this._ctx.state === 'suspended') this._ctx.resume()
     return this._ctx
   }
 
@@ -195,8 +196,16 @@ export class SoundManager {
     this._bgmRunning = true
     this._bgmStep = 0
     const ctx = this._getCtx()
-    this._bgmNextTime = ctx.currentTime + 0.15
-    this._scheduleBGM()
+    const begin = () => {
+      if (!this._bgmRunning) return
+      this._bgmNextTime = ctx.currentTime + 0.15
+      this._scheduleBGM()
+    }
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(begin).catch(() => { this._bgmRunning = false })
+    } else {
+      begin()
+    }
   }
 
   /** Stop BGM */
